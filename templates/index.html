@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CKD Prediction</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f7f9fc;
+        }
+        h1 {
+            color: #333;
+        }
+        form {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            display: inline-block;
+            padding: 10px 15px;
+            font-size: 16px;
+            color: #fff;
+            background: #007BFF;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .response {
+            margin-top: 20px;
+            padding: 10px;
+            background: #f1f1f1;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1>CKD Prediction</h1>
+    <form id="predictionForm">
+        <label for="age">Age</label>
+        <input type="number" id="age" name="age" required>
+
+        <label for="serum_creatine">Serum Creatine</label>
+        <input type="number" step="any" id="serum_creatine" name="serum_creatine" required>
+
+        <label for="blood_pressure">Blood Pressure</label>
+        <input type="number" id="blood_pressure" name="blood_pressure" required>
+
+        <label for="blood_urea">Blood Urea</label>
+        <input type="number" step="any" id="blood_urea" name="blood_urea" required>
+
+        <label for="haemoglobin">Haemoglobin</label>
+        <input type="number" step="any" id="haemoglobin" name="haemoglobin" required>
+
+        <label for="albumin">Albumin</label>
+        <input type="number" step="any" id="albumin" name="albumin" required>
+
+        <label for="blood_glucose_random">Blood Glucose Random</label>
+        <input type="number" step="any" id="blood_glucose_random" name="blood_glucose_random" required>
+
+        <label for="potassium">Potassium</label>
+        <input type="number" step="any" id="potassium" name="potassium" required>
+
+        <label for="anemia">Anemia (1: Yes, 0: No)</label>
+        <input type="number" id="anemia" name="anemia" min="0" max="1" required>
+
+        <label for="hypertension">Hypertension (1: Yes, 0: No)</label>
+        <input type="number" id="hypertension" name="hypertension" min="0" max="1" required>
+
+        <button type="submit">Predict</button>
+    </form>
+    <div class="response" id="response"></div>
+
+    <script>
+        document.getElementById('predictionForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+
+            const formData = new FormData(event.target);
+            const data = Object.fromEntries(formData.entries());
+
+            // Convert all form data values to numbers
+            Object.keys(data).forEach(key => {
+                data[key] = parseFloat(data[key]);
+            });
+
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                const responseDiv = document.getElementById('response');
+                if (response.ok) {
+                    responseDiv.textContent = `Result: ${result.result}`;
+                    responseDiv.style.color = 'green';
+                } else {
+                    responseDiv.textContent = `Error: ${result.error}`;
+                    responseDiv.style.color = 'red';
+                }
+            } catch (error) {
+                document.getElementById('response').textContent = `Error: ${error.message}`;
+            }
+        });
+    </script>
+</body>
+</html>
